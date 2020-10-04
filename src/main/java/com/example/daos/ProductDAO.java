@@ -62,7 +62,7 @@ public class ProductDAO {
 		        throw new RuntimeException(e);
 
 		    }
-		    return 1;
+		    return id;
 
 		  }
 

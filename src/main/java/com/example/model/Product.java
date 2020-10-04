@@ -16,6 +16,13 @@ public class Product {
 		this.calories = calories;
 		this.productname = productname;
 	}
+	
+	public Product(ProductRequest pr) {
+		this.productid=pr.getProductid();
+		this.calories=pr.getCalories();
+		this.productname=pr.getProductname();
+	}
+	
 	public int getProductid() {
 		return productid;
 	}
