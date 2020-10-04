@@ -5,6 +5,7 @@ import javax.ws.rs.Path;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
+import com.example.restaurant.MenuItemManagement;
 import com.example.restaurant.ProductManagement;
 import com.example.restaurant.RestaurantManagement;
 
@@ -14,6 +15,7 @@ public class MyResourceConfig extends ResourceConfig{
     loadPath(Test1.class);
     loadPath(RestaurantManagement.class);
     loadPath(ProductManagement.class);
+    loadPath(MenuItemManagement.class);
 
   }
   
