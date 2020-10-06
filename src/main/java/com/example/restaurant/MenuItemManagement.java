@@ -52,12 +52,12 @@ public class MenuItemManagement {
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getById(
+	public MenuItem getById(
 		      @Valid @RequestBody IdRequest idrequest,
 		      @Context ContainerRequest request) throws SQLException {
 		MenuItem r = menuItemDAO.getById(idrequest.getId());
 		System.out.println(r.toString());
-		return String.valueOf(idrequest.getId());
+		return r;
 	}
 	
 	@DELETE

@@ -54,12 +54,12 @@ public class ProductManagement {
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getById(
+	public Product getById(
 		      @Valid @RequestBody IdRequest idrequest,
 		      @Context ContainerRequest request) throws SQLException {
 		Product r = productDAO.getById(idrequest.getId());
 		System.out.println(r.toString());
-		return "1";
+		return r;
 	}
 	
 	@DELETE
