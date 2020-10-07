@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.restaurant.MenuItemManagement;
 import com.example.restaurant.MenuItemProductManagement;
+import com.example.restaurant.OrderTableManagement;
 import com.example.restaurant.ProductManagement;
 import com.example.restaurant.RestaurantManagement;
 
@@ -18,6 +19,7 @@ public class MyResourceConfig extends ResourceConfig{
     loadPath(ProductManagement.class);
     loadPath(MenuItemManagement.class);
     loadPath(MenuItemProductManagement.class);
+    loadPath(OrderTableManagement.class);
 
   }
   
