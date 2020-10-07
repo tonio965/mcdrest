@@ -11,6 +11,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,6 +39,20 @@ public class MenuItemDAO {
 		    return 1;
 		    
 	 }
+	  public List<MenuItem> getAllMenuItems() throws SQLException{
+		  Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());
+		  PreparedStatement ps = conn.prepareStatement("select * from menuitem");
+		  List<MenuItem> menuitems = new ArrayList<MenuItem>();
+		  MenuItem r = new MenuItem();
+	      ResultSet rs=ps.executeQuery();  
+	      while(rs.next()){  
+	    	r = new MenuItem(rs.getInt(1), rs.getString(2), rs.getInt(3));
+	    	menuitems.add(r);
+	        System.out.println(r.toString());  
+	      }  
+	      ps.close();
+		  return menuitems;
+	  }
 	  
 	  public MenuItem getById(int id) throws SQLException {
 		  Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());

@@ -1,6 +1,8 @@
 package com.example.restaurant;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -13,15 +15,21 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.server.ContainerRequest;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.configurations.Database;
 import com.example.daos.MenuItemDAO;
+import com.example.daos.MenuItemProductDAO;
+import com.example.daos.ProductDAO;
 import com.example.model.IdRequest;
 import com.example.model.MenuItem;
 import com.example.model.MenuItemRequest;
+import com.example.model.MenuitemProduct;
+import com.example.model.Product;
 import com.example.model.Restaurant;
 import com.example.model.TestRequest;
 
@@ -34,6 +42,13 @@ public class MenuItemManagement {
 	
 	@Autowired
 	MenuItemDAO menuItemDAO;
+	
+	@Autowired
+	MenuItemProductDAO menuitemproductDAO;
+	
+	@Autowired
+	ProductDAO productDAO;
+	
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -52,12 +67,57 @@ public class MenuItemManagement {
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public MenuItem getById(
+	public String getById(
 		      @Valid @RequestBody IdRequest idrequest,
 		      @Context ContainerRequest request) throws SQLException {
 		MenuItem r = menuItemDAO.getById(idrequest.getId());
+		List<Product> products = new ArrayList<Product>();
+		List<MenuitemProduct> menuitemproducts = menuitemproductDAO.getByMenuItemId(r.getMenuitemid());
+		JSONObject mainObj = new JSONObject();
+		mainObj.put("menuitem", r.getMenuitemname());
+		mainObj.put("menuitemid", r.getMenuitemid());
+		JSONArray array = new JSONArray();
+		for(MenuitemProduct mip: menuitemproducts) {
+			Product p = productDAO.getById(mip.getProductid());
+			products.add(p);
+			JSONObject smallObj = new JSONObject();
+			smallObj.put("productid", p.getProductid());
+			smallObj.put("productname", p.getProductname());
+			array.add(smallObj);
+		}
+		mainObj.put("ingredients", array);
 		System.out.println(r.toString());
-		return r;
+		
+		
+		return mainObj.toJSONString();
+	}
+	
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/getAllMenuItems")
+	public String getAll(
+		      @Context ContainerRequest request) throws SQLException {
+
+		List<MenuItem> menuItemList = menuItemDAO.getAllMenuItems();//gets name of item etc hamburger
+		JSONObject mainObj = new JSONObject(); //tworze glowny obiekt jsonowy
+		JSONArray menuItemArray = new JSONArray(); //tworze tablice menuitemow
+		for(MenuItem mi : menuItemList) { 
+			JSONObject menuItem = new JSONObject(); //pojedynczy item np burger
+			menuItem.put("menuitemid", mi.getMenuitemid()); //nazwa 
+			menuItem.put("menuitemname", mi.getMenuitemname()); //id
+			JSONArray productsInMenuItem = new JSONArray(); //skladniki w potrawie
+			List<MenuitemProduct> productsInItem = menuitemproductDAO.getByMenuItemId(mi.getMenuitemid());
+			for(MenuitemProduct mip : productsInItem) { //po tabeli n do n szukam produktow
+				Product p = productDAO.getById(mip.getProductid());
+				productsInMenuItem.add(p.getProductname());
+			}
+			menuItem.put("ingredients", productsInMenuItem);
+			menuItemArray.add(menuItem);
+		}
+		mainObj.put("menuitems", menuItemArray);
+		return mainObj.toJSONString();
+
 	}
 	
 	@DELETE
