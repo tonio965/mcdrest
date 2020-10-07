@@ -14,6 +14,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.server.ContainerRequest;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +31,6 @@ import com.example.model.MenuitemProduct;
 import com.example.model.Product;
 import com.example.model.Restaurant;
 import com.example.model.TestRequest;
-import com.google.gson.JsonObject;
 
 @Component
 @Path("/menuitemproductmanagement")
@@ -72,17 +73,23 @@ public class MenuItemProductManagement {
 		List<MenuitemProduct> productsInItem = menuitemproductDAO.getByMenuItemId(idrequest.getId()); //gets from n to n table ids
 		List<String> products = new ArrayList<String>(); //empty products list etc hamburger has: porkchop, bun
 		MenuItem menuItem = menuitemDAO.getById(idrequest.getId()); //gets name of item etc hamburger
-		JsonObject response = new JsonObject();
-		response.addProperty("menuitem", menuItem.getMenuitemname());
+		JSONObject mainObj = new JSONObject();
+		mainObj.put("menuitem", menuItem.getMenuitemname());
+		mainObj.put("menuitemid", menuItem.getMenuitemid());
+		JSONArray array = new JSONArray();
 		for(MenuitemProduct mip : productsInItem) {
 			Product p = productDAO.getById(mip.getProductid());
 			products.add(p.getProductname());
 			sb.append(p.getProductname()).append(",");
+			JSONObject jo = new JSONObject();
+			array.add(p.getProductname());
 		}
 		sb.deleteCharAt(sb.length()-1);
-		response.addProperty("ingredients", sb.toString());
-		return response.toString();
+		mainObj.put("ingredients", array);
+		return mainObj.toJSONString();
 	}
+	
+	
 	
 
 }

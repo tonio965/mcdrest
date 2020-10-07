@@ -5,11 +5,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.configurations.Database;
+import com.example.model.Product;
 import com.example.model.Restaurant;
 
 @Component
@@ -36,6 +39,21 @@ public class RestaurantDAO {
 		    return 1;
 		    
 	 }
+	  
+	  public List<Restaurant> getAllRestaurants() throws SQLException{
+		  Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());
+		  PreparedStatement ps = conn.prepareStatement("select * from Restaurant");
+		  List<Restaurant> restaurants = new ArrayList<Restaurant>();
+		  Restaurant r = new Restaurant();
+	      ResultSet rs=ps.executeQuery();  
+	      while(rs.next()){  
+	        r = new Restaurant(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
+	        restaurants.add(r);
+	        System.out.println(r.toString());  
+	      }  
+	      ps.close();
+		  return restaurants;
+	  }
 	 
 	  public Restaurant getById(int id) throws SQLException {
 		  Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());
