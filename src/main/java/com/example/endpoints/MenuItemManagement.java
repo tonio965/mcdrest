@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,6 +33,7 @@ import com.example.model.MenuitemProduct;
 import com.example.model.Product;
 import com.example.model.Restaurant;
 import com.example.model.TestRequest;
+import com.example.services.ValidationService;
 
 @Component
 @Path("/menuItemManagement")
@@ -49,48 +51,65 @@ public class MenuItemManagement {
 	@Autowired
 	ProductDAO productDAO;
 	
+	@Autowired
+	ValidationService validationService;
+	
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String process(
-//		      @HeaderParam("Authorization")
-//		      String auth,
+		      @HeaderParam("Authorization")
+		      String auth,
 		      @Valid @RequestBody MenuItemRequest menuItemRequest,
-		      @Context ContainerRequest request) {
-		MenuItem menuitem = new MenuItem(menuItemRequest);
-		menuItemDAO.insert(menuitem);
-		System.out.println("request: "+menuItemRequest.toString());
-		return "true";
+		      @Context ContainerRequest request) throws SQLException {
+		boolean validated = validationService.checkAccess(auth, 1); //change to restaurantid
+		System.out.println("validation status: "+validated);
+		if(validated) {
+			MenuItem menuitem = new MenuItem(menuItemRequest);
+			menuItemDAO.insert(menuitem);
+			return("request: "+menuItemRequest.toString());
+		}
+		return "validation error";
 		
 	}
 	
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	
 	public String getById(
 		      @Valid @RequestBody IdRequest idrequest,
+		      @HeaderParam("Authorization")
+		      String auth,
 		      @Context ContainerRequest request) throws SQLException {
-		MenuItem r = menuItemDAO.getById(idrequest.getId());
-		List<Product> products = new ArrayList<Product>();
-		List<MenuitemProduct> menuitemproducts = menuitemproductDAO.getByMenuItemId(r.getMenuitemid());
-		JSONObject mainObj = new JSONObject();
-		mainObj.put("menuitem", r.getMenuitemname());
-		mainObj.put("menuitemid", r.getMenuitemid());
-		mainObj.put("menuitemprice", r.getPrice());
-		JSONArray array = new JSONArray();
-		for(MenuitemProduct mip: menuitemproducts) {
-			Product p = productDAO.getById(mip.getProductid());
-			products.add(p);
-			JSONObject smallObj = new JSONObject();
-			smallObj.put("productid", p.getProductid());
-			smallObj.put("productname", p.getProductname());
-			array.add(smallObj);
+		boolean validated = validationService.checkAccess(auth, 1); //change to restaurantid
+		System.out.println("validation status: "+validated);
+		
+		if(validated) {
+			MenuItem r = menuItemDAO.getById(idrequest.getId());
+			List<Product> products = new ArrayList<Product>();
+			List<MenuitemProduct> menuitemproducts = menuitemproductDAO.getByMenuItemId(r.getMenuitemid());
+			JSONObject mainObj = new JSONObject();
+			mainObj.put("menuitem", r.getMenuitemname());
+			mainObj.put("menuitemid", r.getMenuitemid());
+			mainObj.put("menuitemprice", r.getPrice());
+			JSONArray array = new JSONArray();
+			for(MenuitemProduct mip: menuitemproducts) {
+				Product p = productDAO.getById(mip.getProductid());
+				products.add(p);
+				JSONObject smallObj = new JSONObject();
+				smallObj.put("productid", p.getProductid());
+				smallObj.put("productname", p.getProductname());
+				array.add(smallObj);
+			}
+			mainObj.put("ingredients", array);
+			System.out.println(r.toString());
+			
+			
+			return mainObj.toJSONString();
+			
 		}
-		mainObj.put("ingredients", array);
-		System.out.println(r.toString());
-		
-		
-		return mainObj.toJSONString();
+		return "validation error";
 	}
 	
 	@GET
@@ -98,27 +117,36 @@ public class MenuItemManagement {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/getAllMenuItems")
 	public String getAll(
-		      @Context ContainerRequest request) throws SQLException {
+		      @Context ContainerRequest request,
+		      @HeaderParam("Authorization")
+		      String auth) throws SQLException {
 
-		List<MenuItem> menuItemList = menuItemDAO.getAllMenuItems();//gets name of item etc hamburger
-		JSONObject mainObj = new JSONObject(); //tworze glowny obiekt jsonowy
-		JSONArray menuItemArray = new JSONArray(); //tworze tablice menuitemow
-		for(MenuItem mi : menuItemList) { 
-			JSONObject menuItem = new JSONObject(); //pojedynczy item np burger
-			menuItem.put("menuitemid", mi.getMenuitemid()); //nazwa 
-			menuItem.put("menuitemname", mi.getMenuitemname()); //id
-			menuItem.put("price", mi.getPrice());
-			JSONArray productsInMenuItem = new JSONArray(); //skladniki w potrawie
-			List<MenuitemProduct> productsInItem = menuitemproductDAO.getByMenuItemId(mi.getMenuitemid());
-			for(MenuitemProduct mip : productsInItem) { //po tabeli n do n szukam produktow
-				Product p = productDAO.getById(mip.getProductid());
-				productsInMenuItem.add(p.getProductname());
+		boolean validated = validationService.checkAccess(auth, 1);
+		System.out.println("validation status: "+validated);
+		
+		if(validated) {
+			List<MenuItem> menuItemList = menuItemDAO.getAllMenuItems();//gets name of item etc hamburger
+			JSONObject mainObj = new JSONObject(); //tworze glowny obiekt jsonowy
+			JSONArray menuItemArray = new JSONArray(); //tworze tablice menuitemow
+			for(MenuItem mi : menuItemList) { 
+				JSONObject menuItem = new JSONObject(); //pojedynczy item np burger
+				menuItem.put("menuitemid", mi.getMenuitemid()); //nazwa 
+				menuItem.put("menuitemname", mi.getMenuitemname()); //id
+				menuItem.put("price", mi.getPrice());
+				JSONArray productsInMenuItem = new JSONArray(); //skladniki w potrawie
+				List<MenuitemProduct> productsInItem = menuitemproductDAO.getByMenuItemId(mi.getMenuitemid());
+				for(MenuitemProduct mip : productsInItem) { //po tabeli n do n szukam produktow
+					Product p = productDAO.getById(mip.getProductid());
+					productsInMenuItem.add(p.getProductname());
+				}
+				menuItem.put("ingredients", productsInMenuItem);
+				menuItemArray.add(menuItem);
 			}
-			menuItem.put("ingredients", productsInMenuItem);
-			menuItemArray.add(menuItem);
+			mainObj.put("menuitems", menuItemArray);
+			return mainObj.toJSONString();
 		}
-		mainObj.put("menuitems", menuItemArray);
-		return mainObj.toJSONString();
+		
+		return "validation error";
 
 	}
 	
