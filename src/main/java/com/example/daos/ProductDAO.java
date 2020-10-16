@@ -23,7 +23,7 @@ public class ProductDAO {
 	  public int insert(Product product) {
 		    try {
 		      Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());
-		      PreparedStatement ps = conn.prepareStatement("insert into product (productid, productname, calories) values(?,?,?)");
+		      PreparedStatement ps = conn.prepareStatement("insert into product (productid, productname, calories, cost) values(?,?,?,?)");
 		      ps.setInt(1, product.getProductid());
 		      ps.setInt(3, product.getCalories());
 		      ps.setString(2, product.getProductname());

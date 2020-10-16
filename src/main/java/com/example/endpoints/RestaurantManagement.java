@@ -1,4 +1,4 @@
-package com.example.restaurant;
+package com.example.endpoints;
 
 import java.sql.SQLException;
 import java.util.List;

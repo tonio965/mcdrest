@@ -16,6 +16,18 @@ public class MenuItemRequest {
 	private 
 	@NotNull(message="menuitemcalories is null")
 	int calories;
+	
+	private
+	float price;
+	
+
+	public float getPrice() {
+		return price;
+	}
+
+	public void setPrice(float price) {
+		this.price = price;
+	}
 
 	public int getMenuitemid() {
 		return menuitemid;

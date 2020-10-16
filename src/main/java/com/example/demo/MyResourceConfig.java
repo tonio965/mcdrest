@@ -5,11 +5,11 @@ import javax.ws.rs.Path;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.stereotype.Component;
 
-import com.example.restaurant.MenuItemManagement;
-import com.example.restaurant.MenuItemProductManagement;
-import com.example.restaurant.OrderTableManagement;
-import com.example.restaurant.ProductManagement;
-import com.example.restaurant.RestaurantManagement;
+import com.example.endpoints.MenuItemManagement;
+import com.example.endpoints.MenuItemProductManagement;
+import com.example.endpoints.OrderTableManagement;
+import com.example.endpoints.ProductManagement;
+import com.example.endpoints.RestaurantManagement;
 
 @Component
 public class MyResourceConfig extends ResourceConfig{

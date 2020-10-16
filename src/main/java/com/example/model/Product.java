@@ -15,6 +15,7 @@ public class Product {
 		this.productid = productid;
 		this.calories = calories;
 		this.productname = productname;
+
 	}
 	
 	public Product(ProductRequest pr) {
@@ -41,6 +42,7 @@ public class Product {
 	public void setProductname(String productname) {
 		this.productname = productname;
 	}
+
 
 	@Override
 	public String toString() {

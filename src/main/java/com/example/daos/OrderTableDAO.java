@@ -23,13 +23,14 @@ public class OrderTableDAO {
 	  @Autowired
       Database db;
 	  
-	  public int insert(OrderTable order) {
+	  public int insert(OrderTable order, float price) {
 		    int randomNumber=generateRandomNumber();
 		    try {
 		      Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());
-		      PreparedStatement ps = conn.prepareStatement("insert into ordertable (orderid, restaurantid) values(?,?)");
+		      PreparedStatement ps = conn.prepareStatement("insert into ordertable (orderid, restaurantid, cost) values(?,?,?)");
 		      ps.setInt(1, randomNumber);
 		      ps.setInt(2, order.getRestaurantid());
+		      ps.setFloat(3, price);
 		      ps.executeUpdate();
 		      ps.close();
 
@@ -41,17 +42,18 @@ public class OrderTableDAO {
 		    
 	 }
 	 
-	 public List<String> getItemsFromOrder(int id) throws SQLException{
+	 public List<MenuItem> getItemsFromOrder(int id) throws SQLException{
 		 Connection conn = DriverManager.getConnection( db.getUrl(), db.getLogin(), db.getPw());
-		  PreparedStatement ps = conn.prepareStatement("select menuitemname from menuitem join "
+		  PreparedStatement ps = conn.prepareStatement("select menuitemname, price from menuitem join "
 		  		+ "menuitemorder on menuitem.menuitemid=menuitemorder.menuitemid where menuitemorder.orderid = ?");
-		 List<String> names = new ArrayList<>();
+		 List<MenuItem> names = new ArrayList<>();
 		 ps.setInt(1, id);
 	     ResultSet rs=ps.executeQuery();  
 	     while(rs.next()){  
-	       String s = rs.getString(1);
-	       names.add(s);
-	       System.out.println(s);  
+	       MenuItem m = new MenuItem();
+	       m.setMenuitemname(rs.getString(1));
+	       m.setPrice(rs.getFloat(2));
+	       names.add(m);
 	      }  
 	      ps.close();
 		 return names;
@@ -64,7 +66,7 @@ public class OrderTableDAO {
 		  OrderTable r = new OrderTable();
 	      ResultSet rs=ps.executeQuery();  
 	      while(rs.next()){  
-	        r = new OrderTable(rs.getInt(1), rs.getInt(2));
+	        r = new OrderTable(rs.getInt(1), rs.getInt(2), rs.getFloat(3));
 	        orders.add(r);
 	        System.out.println(r.toString());  
 	      }  
@@ -79,7 +81,7 @@ public class OrderTableDAO {
 	      OrderTable r = new OrderTable();
 	      ResultSet rs=ps.executeQuery(); 
 	      while(rs.next()){  
-	        r = new OrderTable(rs.getInt(1), rs.getInt(2));
+	        r = new OrderTable(rs.getInt(1), rs.getInt(2),rs.getFloat(3));
 	        System.out.println(r.toString());  
 	      }  
 	      ps.close();

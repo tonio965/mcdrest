@@ -1,4 +1,4 @@
-package com.example.restaurant;
+package com.example.endpoints;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -26,6 +26,7 @@ import com.example.daos.MenuItemProductDAO;
 import com.example.daos.OrderTableDAO;
 import com.example.daos.ProductDAO;
 import com.example.model.IdRequest;
+import com.example.model.MenuItem;
 import com.example.model.MenuItemOrder;
 import com.example.model.MenuItemProductRequest;
 import com.example.model.MenuitemProduct;
@@ -40,6 +41,9 @@ public class OrderTableManagement {
 	Database db;
 	
 	@Autowired
+	MenuItemDAO menuitemDAO;
+	
+	@Autowired
 	MenuItemOrderDAO menuitemorderDAO;
 	
 	@Autowired
@@ -51,10 +55,18 @@ public class OrderTableManagement {
 //		      @HeaderParam("Authorization")
 //		      String auth,
 		      @Valid @RequestBody OrderRequest orderRequest,
-		      @Context ContainerRequest request) {
+		      @Context ContainerRequest request) throws SQLException {
 		OrderTable order = new OrderTable(orderRequest.getRestaurantid());
-		int orderId = ordertableDAO.insert(order);
 		int [] items = orderRequest.getOrderedItems();
+		//sum total cost of order
+		float totalCost=0;
+		for(int id : items) {
+			MenuItem mi = menuitemDAO.getById(id);
+			totalCost+=mi.getPrice();
+		}
+		//insert
+		int orderId = ordertableDAO.insert(order,totalCost);
+		
 		for(int i=0; i<items.length; i++) {
 			MenuItemOrder mio = new MenuItemOrder(orderId, items[i]);
 			menuitemorderDAO.insert(mio);
@@ -71,13 +83,18 @@ public class OrderTableManagement {
 		      @Valid @RequestBody IdRequest idrequest,
 		      @Context ContainerRequest request) throws SQLException {
 		OrderTable order = ordertableDAO.getById(idrequest.getId());
-		List<String> names = ordertableDAO.getItemsFromOrder(idrequest.getId());
+		List<MenuItem> names = ordertableDAO.getItemsFromOrder(idrequest.getId());
+		
 		JSONObject orderjson = new JSONObject();
 		orderjson.put("restaurantid", order.getRestaurantid());
 		orderjson.put("orderid", order.getOrderid());
+		orderjson.put("cost", order.getCost());
 		JSONArray orderedItems = new JSONArray();
-		for(String name : names) {
-			orderedItems.add(name);
+		for(MenuItem itm : names) {
+			JSONObject item = new JSONObject();
+			item.put("name", itm.getMenuitemname());
+			item.put("price", itm.getPrice());
+			orderedItems.add(item);
 		}
 		orderjson.put("orderedItems", orderedItems);
 		
@@ -99,9 +116,12 @@ public class OrderTableManagement {
 			order.put("orderId", orderId);
 			order.put("restaurantId", idrequest.getId());
 			JSONArray itemsInOrder = new JSONArray();
-			List<String> names = ordertableDAO.getItemsFromOrder(orderId);
-			for(String name : names) {
-				itemsInOrder.add(name);
+			List<MenuItem> names = ordertableDAO.getItemsFromOrder(orderId);
+			for(MenuItem itm : names) {
+				JSONObject item = new JSONObject();
+				item.put("name", itm.getMenuitemname());
+				item.put("price", itm.getPrice());
+				itemsInOrder.add(item);
 			}
 			order.put("orderedItems", itemsInOrder);
 			orders.add(order);

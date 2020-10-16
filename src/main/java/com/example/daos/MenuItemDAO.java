@@ -46,7 +46,7 @@ public class MenuItemDAO {
 		  MenuItem r = new MenuItem();
 	      ResultSet rs=ps.executeQuery();  
 	      while(rs.next()){  
-	    	r = new MenuItem(rs.getInt(1), rs.getString(2), rs.getInt(3));
+	    	r = new MenuItem(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getFloat(4));
 	    	menuitems.add(r);
 	        System.out.println(r.toString());  
 	      }  
@@ -61,7 +61,7 @@ public class MenuItemDAO {
 	      MenuItem r = new MenuItem();
 	      ResultSet rs=ps.executeQuery();  
 	      while(rs.next()){  
-	        r = new MenuItem(rs.getInt(1), rs.getString(2), rs.getInt(3));
+	        r = new MenuItem(rs.getInt(1), rs.getString(2), rs.getInt(3), rs.getFloat(4));
 	        System.out.println(r.toString());  
 	      }  
 	      ps.close();

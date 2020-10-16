@@ -1,4 +1,4 @@
-package com.example.restaurant;
+package com.example.endpoints;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -76,6 +76,7 @@ public class MenuItemManagement {
 		JSONObject mainObj = new JSONObject();
 		mainObj.put("menuitem", r.getMenuitemname());
 		mainObj.put("menuitemid", r.getMenuitemid());
+		mainObj.put("menuitemprice", r.getPrice());
 		JSONArray array = new JSONArray();
 		for(MenuitemProduct mip: menuitemproducts) {
 			Product p = productDAO.getById(mip.getProductid());
@@ -106,6 +107,7 @@ public class MenuItemManagement {
 			JSONObject menuItem = new JSONObject(); //pojedynczy item np burger
 			menuItem.put("menuitemid", mi.getMenuitemid()); //nazwa 
 			menuItem.put("menuitemname", mi.getMenuitemname()); //id
+			menuItem.put("price", mi.getPrice());
 			JSONArray productsInMenuItem = new JSONArray(); //skladniki w potrawie
 			List<MenuitemProduct> productsInItem = menuitemproductDAO.getByMenuItemId(mi.getMenuitemid());
 			for(MenuitemProduct mip : productsInItem) { //po tabeli n do n szukam produktow

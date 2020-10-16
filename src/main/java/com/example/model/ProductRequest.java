@@ -17,8 +17,21 @@ public class ProductRequest {
 	@NotNull(message = "product calories is empty")
 	int calories;
 
+	private
+	@NotNull(message = "cost is null")
+	int cost;
+	
+	
 	public int getProductid() {
 		return productid;
+	}
+
+	public int getCost() {
+		return cost;
+	}
+
+	public void setCost(int cost) {
+		this.cost = cost;
 	}
 
 	public void setProductid(int productid) {

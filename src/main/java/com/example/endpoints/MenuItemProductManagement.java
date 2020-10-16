@@ -1,4 +1,4 @@
-package com.example.restaurant;
+package com.example.endpoints;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,6 +58,7 @@ public class MenuItemProductManagement {
 		      @Context ContainerRequest request) {
 		MenuitemProduct menuitemproduct = new MenuitemProduct(menuitemproductrequest);
 		menuitemproductDAO.insert(menuitemproduct);
+		
 		System.out.println("request: "+menuitemproductrequest.toString());
 		return "true";
 		
@@ -69,22 +70,21 @@ public class MenuItemProductManagement {
 	public String getById(
 		      @Valid @RequestBody IdRequest idrequest,
 		      @Context ContainerRequest request) throws SQLException {
-		StringBuilder sb = new StringBuilder();
 		List<MenuitemProduct> productsInItem = menuitemproductDAO.getByMenuItemId(idrequest.getId()); //gets from n to n table ids
 		List<String> products = new ArrayList<String>(); //empty products list etc hamburger has: porkchop, bun
 		MenuItem menuItem = menuitemDAO.getById(idrequest.getId()); //gets name of item etc hamburger
+		
 		JSONObject mainObj = new JSONObject();
 		mainObj.put("menuitem", menuItem.getMenuitemname());
 		mainObj.put("menuitemid", menuItem.getMenuitemid());
+		
 		JSONArray array = new JSONArray();
 		for(MenuitemProduct mip : productsInItem) {
 			Product p = productDAO.getById(mip.getProductid());
 			products.add(p.getProductname());
-			sb.append(p.getProductname()).append(",");
 			JSONObject jo = new JSONObject();
 			array.add(p.getProductname());
 		}
-		sb.deleteCharAt(sb.length()-1);
 		mainObj.put("ingredients", array);
 		return mainObj.toJSONString();
 	}

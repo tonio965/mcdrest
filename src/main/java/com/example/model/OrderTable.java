@@ -4,19 +4,34 @@ public class OrderTable {
 	
 	private int orderid;
 	private int restaurantid;
+	private float cost;
 	
-	public OrderTable(int orderid, int restaurantid) {
+	public OrderTable(int orderid, int restaurantid, float cost) {
 		super();
 		this.orderid = orderid;
 		this.restaurantid = restaurantid;
+		this.cost = cost;
 	}
 	
 	public OrderTable(int restaurantid) {
 		this.restaurantid=restaurantid;
 	}
 
+	
+	
 	public OrderTable() {
 		super();
+	}
+
+	
+	
+	
+	public float getCost() {
+		return cost;
+	}
+
+	public void setCost(float cost) {
+		this.cost = cost;
 	}
 
 	public int getOrderid() {
